@@ -42,9 +42,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.ui.components.BottomNav
 
+import com.example.myapplication.data.Habit
+import com.example.myapplication.data.HabitType
+import com.example.myapplication.viewmodel.MentorViewModel
+import java.util.UUID
+
 @Composable
-fun AddGoodHabitScreen(onNavigate: (String) -> Unit, onBack: () -> Unit) {
+fun AddGoodHabitScreen(viewModel: MentorViewModel, onNavigate: (String) -> Unit, onBack: () -> Unit) {
     var habitName by remember { mutableStateOf("") }
+    var category by remember { mutableStateOf("Focus") }
+    var goal by remember { mutableStateOf("1h") }
+    var frequency by remember { mutableStateOf("Daily") }
     var mentorCalls by remember { mutableStateOf(false) }
     var systemOverride by remember { mutableStateOf(false) }
 
@@ -102,15 +110,39 @@ fun AddGoodHabitScreen(onNavigate: (String) -> Unit, onBack: () -> Unit) {
             Text("Frequency", style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
             Spacer(modifier = Modifier.height(8.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
-                Button(onClick = {}, modifier = Modifier.weight(1f), shape = RoundedCornerShape(20.dp), colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)) {
+                Button(
+                    onClick = { frequency = "Daily" },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (frequency == "Daily") MaterialTheme.colorScheme.primary else Color.White,
+                        contentColor = if (frequency == "Daily") Color.White else MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
                     Text("Daily")
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = {}, modifier = Modifier.weight(1f), shape = RoundedCornerShape(20.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = MaterialTheme.colorScheme.onSurface)) {
+                Button(
+                    onClick = { frequency = "2x week" },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (frequency == "2x week") MaterialTheme.colorScheme.primary else Color.White,
+                        contentColor = if (frequency == "2x week") Color.White else MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
                     Text("2x week")
                 }
                 Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = {}, modifier = Modifier.weight(1f), shape = RoundedCornerShape(20.dp), colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = MaterialTheme.colorScheme.onSurface)) {
+                Button(
+                    onClick = { frequency = "3x week" },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (frequency == "3x week") MaterialTheme.colorScheme.primary else Color.White,
+                        contentColor = if (frequency == "3x week") Color.White else MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
                     Text("3x week")
                 }
             }
@@ -119,8 +151,8 @@ fun AddGoodHabitScreen(onNavigate: (String) -> Unit, onBack: () -> Unit) {
             Text("Scheduled time", style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
             Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
-                value = "06:00",
-                onValueChange = {},
+                value = goal,
+                onValueChange = { goal = it },
                 leadingIcon = { Icon(Icons.Default.Schedule, contentDescription = null) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
@@ -145,7 +177,20 @@ fun AddGoodHabitScreen(onNavigate: (String) -> Unit, onBack: () -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = onBack,
+                onClick = {
+                    if (habitName.isNotBlank()) {
+                        viewModel.addHabit(
+                            Habit(
+                                id = UUID.randomUUID().toString(),
+                                name = habitName,
+                                category = category,
+                                type = HabitType.GOOD,
+                                goal = goal
+                            )
+                        )
+                        onBack()
+                    }
+                },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)

@@ -28,8 +28,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.components.BottomNav
 
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import java.util.Locale
+
 @Composable
 fun SettingsScreen(onNavigate: (String) -> Unit) {
+    var selectedMatrix by remember { mutableStateOf("Strict") }
+    var lockdownEnabled by remember { mutableStateOf(true) }
+    var strictnessValue by remember { mutableStateOf(8.0f) }
+
     Scaffold(
         bottomBar = { BottomNav(currentRoute = "settings", onNavigate = onNavigate) },
         containerColor = MaterialTheme.colorScheme.background
@@ -96,45 +107,57 @@ fun SettingsScreen(onNavigate: (String) -> Unit) {
 
             // Matrix Options
             Row(modifier = Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(MaterialTheme.colorScheme.primary).padding(16.dp)) {
+                Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(16.dp))
+                    .background(if (selectedMatrix == "Strict") MaterialTheme.colorScheme.primary else Color.White)
+                    .clickable { selectedMatrix = "Strict" }
+                    .padding(16.dp)) {
                     Column {
-                        Icon(imageVector = Icons.Default.Gavel, contentDescription = null, tint = Color.White)
+                        Icon(imageVector = Icons.Default.Gavel, contentDescription = null, tint = if (selectedMatrix == "Strict") Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Strict", style = MaterialTheme.typography.titleMedium.copy(color = Color.White))
+                        Text("Strict", style = MaterialTheme.typography.titleMedium.copy(color = if (selectedMatrix == "Strict") Color.White else MaterialTheme.colorScheme.onSurface))
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Zero-tolerance structural enforcement.", style = MaterialTheme.typography.bodySmall.copy(color = Color.White.copy(alpha=0.8f)))
+                        Text("Zero-tolerance structural enforcement.", style = MaterialTheme.typography.bodySmall.copy(color = if (selectedMatrix == "Strict") Color.White.copy(alpha=0.8f) else MaterialTheme.colorScheme.onSurfaceVariant))
                     }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
-                Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(Color.White).padding(16.dp)) {
+                Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(16.dp))
+                    .background(if (selectedMatrix == "Rational") MaterialTheme.colorScheme.primary else Color.White)
+                    .clickable { selectedMatrix = "Rational" }
+                    .padding(16.dp)) {
                     Column {
-                        Icon(imageVector = Icons.Default.Psychology, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(imageVector = Icons.Default.Psychology, contentDescription = null, tint = if (selectedMatrix == "Rational") Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Rational", style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurface))
+                        Text("Rational", style = MaterialTheme.typography.titleMedium.copy(color = if (selectedMatrix == "Rational") Color.White else MaterialTheme.colorScheme.onSurface))
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Logic-driven, analytical feedback.", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
+                        Text("Logic-driven, analytical feedback.", style = MaterialTheme.typography.bodySmall.copy(color = if (selectedMatrix == "Rational") Color.White.copy(alpha=0.8f) else MaterialTheme.colorScheme.onSurfaceVariant))
                     }
                 }
             }
             Spacer(modifier = Modifier.height(16.dp))
             Row(modifier = Modifier.fillMaxWidth()) {
-                Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(Color.White).padding(16.dp)) {
+                Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(16.dp))
+                    .background(if (selectedMatrix == "Supportive") MaterialTheme.colorScheme.primary else Color.White)
+                    .clickable { selectedMatrix = "Supportive" }
+                    .padding(16.dp)) {
                     Column {
-                        Icon(imageVector = Icons.Default.Favorite, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(imageVector = Icons.Default.Favorite, contentDescription = null, tint = if (selectedMatrix == "Supportive") Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Supportive", style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurface))
+                        Text("Supportive", style = MaterialTheme.typography.titleMedium.copy(color = if (selectedMatrix == "Supportive") Color.White else MaterialTheme.colorScheme.onSurface))
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Encouraging positive reinforcement.", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
+                        Text("Encouraging positive reinforcement.", style = MaterialTheme.typography.bodySmall.copy(color = if (selectedMatrix == "Supportive") Color.White.copy(alpha=0.8f) else MaterialTheme.colorScheme.onSurfaceVariant))
                     }
                 }
                 Spacer(modifier = Modifier.width(16.dp))
-                Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(16.dp)).background(Color.White).padding(16.dp)) {
+                Box(modifier = Modifier.weight(1f).clip(RoundedCornerShape(16.dp))
+                    .background(if (selectedMatrix == "Grounding") MaterialTheme.colorScheme.primary else Color.White)
+                    .clickable { selectedMatrix = "Grounding" }
+                    .padding(16.dp)) {
                     Column {
-                        Icon(imageVector = Icons.Default.Anchor, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Icon(imageVector = Icons.Default.Anchor, contentDescription = null, tint = if (selectedMatrix == "Grounding") Color.White else MaterialTheme.colorScheme.onSurfaceVariant)
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Grounding", style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurface))
+                        Text("Grounding", style = MaterialTheme.typography.titleMedium.copy(color = if (selectedMatrix == "Grounding") Color.White else MaterialTheme.colorScheme.onSurface))
                         Spacer(modifier = Modifier.height(4.dp))
-                        Text("Calm, centering prompts.", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
+                        Text("Calm, centering prompts.", style = MaterialTheme.typography.bodySmall.copy(color = if (selectedMatrix == "Grounding") Color.White.copy(alpha=0.8f) else MaterialTheme.colorScheme.onSurfaceVariant))
                     }
                 }
             }
@@ -150,8 +173,8 @@ fun SettingsScreen(onNavigate: (String) -> Unit) {
                         Spacer(modifier = Modifier.width(16.dp))
                         Text("Lock down mode", style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.error), modifier = Modifier.weight(1f))
                         Switch(
-                            checked = true,
-                            onCheckedChange = { /* TODO */ },
+                            checked = lockdownEnabled,
+                            onCheckedChange = { lockdownEnabled = it },
                             colors = SwitchDefaults.colors(checkedThumbColor = Color.White, checkedTrackColor = MaterialTheme.colorScheme.error)
                         )
                     }
@@ -170,16 +193,23 @@ fun SettingsScreen(onNavigate: (String) -> Unit) {
             Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White).padding(24.dp)) {
                 Column {
                     Row(verticalAlignment = Alignment.Bottom) {
-                        Text(text = "08", style = MaterialTheme.typography.displayLarge.copy(color = MaterialTheme.colorScheme.primary, fontSize = 48.sp))
-                        Text(text = ".0", style = MaterialTheme.typography.displayMedium.copy(color = MaterialTheme.colorScheme.primary, fontSize = 32.sp), modifier = Modifier.padding(bottom = 4.dp))
+                        Text(text = String.format(Locale.getDefault(), "%02d", strictnessValue.toInt()), style = MaterialTheme.typography.displayLarge.copy(color = MaterialTheme.colorScheme.primary, fontSize = 48.sp))
+                        Text(text = ".${((strictnessValue % 1) * 10).toInt()}", style = MaterialTheme.typography.displayMedium.copy(color = MaterialTheme.colorScheme.primary, fontSize = 32.sp), modifier = Modifier.padding(bottom = 4.dp))
                         Spacer(modifier = Modifier.width(16.dp))
-                        Text(text = "High Strictness", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant), modifier = Modifier.padding(bottom = 12.dp))
+                        Text(text = if (strictnessValue > 7) "High Strictness" else if (strictnessValue > 4) "Medium Strictness" else "Low Strictness", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant), modifier = Modifier.padding(bottom = 12.dp))
                     }
                     Spacer(modifier = Modifier.height(24.dp))
-                    // Slider visual mock
-                    Box(modifier = Modifier.fillMaxWidth().height(8.dp).clip(RoundedCornerShape(4.dp)).background(MaterialTheme.colorScheme.onSurface.copy(alpha=0.1f))) {
-                        Box(modifier = Modifier.fillMaxWidth(0.8f).height(8.dp).clip(RoundedCornerShape(4.dp)).background(MaterialTheme.colorScheme.primary))
-                    }
+                    // Slider
+                    Slider(
+                        value = strictnessValue,
+                        onValueChange = { strictnessValue = it },
+                        valueRange = 0f..10f,
+                        colors = SliderDefaults.colors(
+                            thumbColor = MaterialTheme.colorScheme.primary,
+                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                            inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha=0.1f)
+                        )
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                         Text("Lenient", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant))

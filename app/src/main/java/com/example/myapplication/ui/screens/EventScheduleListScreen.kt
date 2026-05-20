@@ -23,8 +23,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.ui.components.BottomNav
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
+import androidx.compose.runtime.collectAsState
+import com.example.myapplication.data.Importance
+import com.example.myapplication.viewmodel.MentorViewModel
+
 @Composable
-fun EventScheduleListScreen(onNavigate: (String) -> Unit) {
+fun EventScheduleListScreen(viewModel: MentorViewModel, onNavigate: (String) -> Unit) {
+    val events by viewModel.events.collectAsState()
+    var isScheduleLocked by remember { mutableStateOf(false) }
+
     Scaffold(
         bottomBar = { BottomNav(currentRoute = "schedule", onNavigate = onNavigate) },
         containerColor = MaterialTheme.colorScheme.background
@@ -105,9 +117,13 @@ fun EventScheduleListScreen(onNavigate: (String) -> Unit) {
                     )
                 }
                 Button(
-                    onClick = { /* TODO */ },
+                    onClick = { onNavigate("add_event") },
+                    enabled = !isScheduleLocked,
                     shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (isScheduleLocked) Color.Gray else MaterialTheme.colorScheme.primary,
+                        disabledContainerColor = Color.Gray
+                    ),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp)
                 ) {
                     Icon(Icons.Default.Add, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
@@ -143,41 +159,37 @@ fun EventScheduleListScreen(onNavigate: (String) -> Unit) {
             Spacer(modifier = Modifier.height(24.dp))
 
             // Event List
-            ScheduleEventItem(
-                classification = "ROUTINE",
-                classificationColor = MaterialTheme.colorScheme.primary,
-                classificationBg = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
-                time = "08:00 - 10:00",
-                title = "System Diagnostics"
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            ScheduleEventItem(
-                classification = "CRITICAL",
-                classificationColor = MaterialTheme.colorScheme.error,
-                classificationBg = MaterialTheme.colorScheme.error.copy(alpha = 0.08f),
-                time = "11:00 - 11:30",
-                title = "Enforcement Protocol"
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            ScheduleEventItem(
-                classification = "MAINTENANCE",
-                classificationColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                classificationBg = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.06f),
-                time = "13:00 - 15:00",
-                title = "Data Archive & Backup"
-            )
+            events.forEach { event ->
+                val classificationColor = when(event.importance) {
+                    Importance.CRITICAL -> MaterialTheme.colorScheme.error
+                    Importance.ROUTINE -> MaterialTheme.colorScheme.primary
+                    Importance.MAINTENANCE -> MaterialTheme.colorScheme.onSurfaceVariant
+                }
+                val classificationBg = classificationColor.copy(alpha = 0.08f)
+                
+                ScheduleEventItem(
+                    classification = event.importance.name,
+                    classificationColor = classificationColor,
+                    classificationBg = classificationBg,
+                    time = event.time,
+                    title = event.title,
+                    isLocked = isScheduleLocked,
+                    onDelete = { viewModel.removeEvent(event.id) }
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
             Spacer(modifier = Modifier.height(40.dp))
 
             // Lock Schedule
             Button(
-                onClick = { /* TODO */ },
+                onClick = { isScheduleLocked = !isScheduleLocked },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                colors = ButtonDefaults.buttonColors(containerColor = if (isScheduleLocked) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error)
             ) {
-                Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
+                Icon(if (isScheduleLocked) Icons.Default.Schedule else Icons.Default.Lock, contentDescription = null, tint = Color.White, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("LOCK SCHEDULE", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = Color.White))
+                Text(if (isScheduleLocked) "UNLOCK SCHEDULE" else "LOCK SCHEDULE", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = Color.White))
             }
             Spacer(modifier = Modifier.height(100.dp))
         }
@@ -190,7 +202,9 @@ private fun ScheduleEventItem(
     classificationColor: Color,
     classificationBg: Color,
     time: String,
-    title: String
+    title: String,
+    isLocked: Boolean,
+    onDelete: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White).padding(16.dp)) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -209,12 +223,14 @@ private fun ScheduleEventItem(
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(title, style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurface))
             }
-            Row {
-                IconButton(onClick = {}, modifier = Modifier.size(36.dp)) {
-                    Icon(Icons.Default.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
-                }
-                IconButton(onClick = {}, modifier = Modifier.size(36.dp)) {
-                    Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
+            if (!isLocked) {
+                Row {
+                    IconButton(onClick = {}, modifier = Modifier.size(36.dp)) {
+                        Icon(Icons.Default.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                    }
+                    IconButton(onClick = onDelete, modifier = Modifier.size(36.dp)) {
+                        Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(18.dp))
+                    }
                 }
             }
         }

@@ -24,9 +24,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.components.BottomNav
 
+import androidx.compose.runtime.collectAsState
+import com.example.myapplication.viewmodel.MentorViewModel
+
 @Composable
-fun AnalyticsScreen(onNavigate: (String) -> Unit) {
+fun AnalyticsScreen(viewModel: MentorViewModel, onNavigate: (String) -> Unit) {
+    val habits by viewModel.habits.collectAsState()
+    val violations by viewModel.violations.collectAsState()
     var selectedTab by remember { mutableStateOf("Today") }
+
+    val completedHabits = habits.count { it.isCompleted }
+    val totalHabits = habits.size
+    val yieldPercentage = if (totalHabits > 0) (completedHabits.toFloat() / totalHabits * 100).toInt() else 0
+    val disciplineScore = 100 - (violations.count { it.isActive } * 5) - (habits.count { !it.isCompleted } * 2)
+
     Scaffold(
         bottomBar = { BottomNav(currentRoute = "analytics", onNavigate = onNavigate) },
         containerColor = MaterialTheme.colorScheme.background

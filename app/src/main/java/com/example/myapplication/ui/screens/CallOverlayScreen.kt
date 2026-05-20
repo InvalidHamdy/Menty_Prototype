@@ -106,7 +106,7 @@ fun CallOverlayScreen(onNavigate: (String) -> Unit, onBack: () -> Unit) {
                     Text("DECLINE", style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
                 }
                 Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.weight(1f)) {
-                    IconButton(onClick = { /* TODO: Accept call */ }, modifier = Modifier.size(64.dp).clip(CircleShape).background(Color(0xFF4CAF50))) {
+                    IconButton(onClick = onBack, modifier = Modifier.size(64.dp).clip(CircleShape).background(Color(0xFF4CAF50))) {
                         Icon(Icons.Default.Check, contentDescription = "Accept", tint = Color.White, modifier = Modifier.size(32.dp))
                     }
                     Spacer(modifier = Modifier.height(8.dp))

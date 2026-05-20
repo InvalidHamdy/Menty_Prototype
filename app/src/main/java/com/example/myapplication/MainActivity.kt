@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.myapplication.ui.screens.AddBadHabitScreen
+import com.example.myapplication.ui.screens.AddEventScreen
 import com.example.myapplication.ui.screens.AddGoodHabitScreen
 import com.example.myapplication.ui.screens.AnalyticsScreen
 import com.example.myapplication.ui.screens.CallOverlayScreen
@@ -28,20 +29,24 @@ import com.example.myapplication.ui.screens.ViolationDetailsScreen
 import com.example.myapplication.ui.screens.ViolationLogScreen
 import com.example.myapplication.ui.theme.MentorTheme
 
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.viewmodel.MentorViewModel
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             MentorTheme {
-                MentorAppNavigation()
+                val viewModel: MentorViewModel = viewModel()
+                MentorAppNavigation(viewModel)
             }
         }
     }
 }
 
 @Composable
-fun MentorAppNavigation() {
+fun MentorAppNavigation(viewModel: MentorViewModel) {
     val navController = rememberNavController()
 
     NavHost(navController = navController, startDestination = "login") {
@@ -59,6 +64,7 @@ fun MentorAppNavigation() {
         }
         composable("home") {
             HomeDashboardScreen(
+                viewModel = viewModel,
                 onNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo("home") { inclusive = false }
@@ -77,6 +83,7 @@ fun MentorAppNavigation() {
         }
         composable("analytics") {
             AnalyticsScreen(
+                viewModel = viewModel,
                 onNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo("home") { inclusive = false }
@@ -95,6 +102,7 @@ fun MentorAppNavigation() {
         }
         composable("violation_log") {
             ViolationLogScreen(
+                viewModel = viewModel,
                 onNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo("home") { inclusive = false }
@@ -104,11 +112,19 @@ fun MentorAppNavigation() {
         }
         composable("event_schedule_list") {
             EventScheduleListScreen(
+                viewModel = viewModel,
                 onNavigate = { route ->
                     navController.navigate(route) {
                         popUpTo("home") { inclusive = false }
                     }
                 }
+            )
+        }
+        composable("add_event") {
+            AddEventScreen(
+                viewModel = viewModel,
+                onNavigate = { route -> navController.navigate(route) },
+                onBack = { navController.popBackStack() }
             )
         }
         composable("call_overlay") {
@@ -130,22 +146,26 @@ fun MentorAppNavigation() {
         }
         composable("builder") {
             HabitBuilderScreen(
+                viewModel = viewModel,
                 onNavigate = { route -> navController.navigate(route) }
             )
         }
         composable("add_good_habit") {
             AddGoodHabitScreen(
+                viewModel = viewModel,
                 onNavigate = { route -> navController.navigate(route) },
                 onBack = { navController.popBackStack() }
             )
         }
         composable("breaker") {
             HabitBreakerScreen(
+                viewModel = viewModel,
                 onNavigate = { route -> navController.navigate(route) }
             )
         }
         composable("add_bad_habit") {
             AddBadHabitScreen(
+                viewModel = viewModel,
                 onNavigate = { route -> navController.navigate(route) },
                 onBack = { navController.popBackStack() }
             )
@@ -157,6 +177,7 @@ fun MentorAppNavigation() {
             val id = backStackEntry.arguments?.getString("id") ?: ""
             ViolationDetailsScreen(
                 violationId = id,
+                viewModel = viewModel,
                 onBack = { navController.popBackStack() }
             )
         }

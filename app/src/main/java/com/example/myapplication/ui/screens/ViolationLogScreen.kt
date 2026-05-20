@@ -37,12 +37,22 @@ import androidx.compose.ui.unit.dp
 import com.example.myapplication.ui.components.BottomNav
 import com.example.myapplication.ui.components.ViolationItem
 
+import androidx.compose.runtime.collectAsState
+import com.example.myapplication.viewmodel.MentorViewModel
+
 @Composable
 fun ViolationLogScreen(
+    viewModel: MentorViewModel,
     onNavigate: (String) -> Unit
 ) {
+    val violations by viewModel.violations.collectAsState()
     var selectedTab by remember { mutableStateOf("Today") }
     var showHistoricalData by remember { mutableStateOf(false) }
+
+    val filteredViolations = when(selectedTab) {
+        "Today" -> violations.filter { it.date == "2023-10-27" }
+        else -> violations.filter { it.date != "2023-10-27" }
+    }
     Scaffold(
         bottomBar = { BottomNav(currentRoute = "violation_log", onNavigate = onNavigate) },
         containerColor = MaterialTheme.colorScheme.background
@@ -149,93 +159,48 @@ fun ViolationLogScreen(
                     )
                 }
 
-                item {
-                    ViolationItem(
-                        title = "ERR_CURFEW_BREACH",
-                        time = "23:42:01",
-                        description = "Subject detected outside designated perimeter. Protocol 7 engaged.",
-                        status = "ACTIVE",
-                        isActive = true,
-                        onClick = { onNavigate("violation_details/curfew") }
-                    )
-                }
-                item {
-                    ViolationItem(
-                        title = "WARN_BIOMETRIC_SPIKE",
-                        time = "18:15:22",
-                        description = "Elevated stress markers detected during scheduled activity.",
-                        status = "ACTIVE",
-                        isActive = true,
-                        onClick = { onNavigate("violation_details/biometric") }
-                    )
-                }
-                item {
-                    ViolationItem(
-                        title = "LOG_DEVIATION_MINOR",
-                        time = "09:04:11",
-                        description = "Minor deviation from optimal transit path. Auto-corrected.",
-                        status = "RESOLVED",
-                        isActive = false,
-                        onClick = { onNavigate("violation_details/deviation") }
-                    )
+                filteredViolations.forEach { violation ->
+                    item {
+                        ViolationItem(
+                            title = violation.title,
+                            time = violation.time,
+                            description = violation.description,
+                            status = violation.status,
+                            isActive = violation.isActive,
+                            onClick = { onNavigate("violation_details/${violation.id}") }
+                        )
+                    }
                 }
             } else {
-                item {
-                    Text(
-                        text = "System Date: 2023-10-26",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-                }
-
-                item {
-                    ViolationItem(
-                        title = "ERR_AUTH_FAILURE",
-                        time = "14:33:05",
-                        description = "Failed terminal authentication attempt. Sector 4.",
-                        status = "RESOLVED",
-                        isActive = false,
-                        onClick = { onNavigate("violation_details/auth") }
-                    )
-                }
-                item {
-                    ViolationItem(
-                        title = "WARN_SLEEP_DEPRIVATION",
-                        time = "02:15:00",
-                        description = "Rest period interrupted. Core function at risk.",
-                        status = "ACTIVE",
-                        isActive = true,
-                        onClick = { onNavigate("violation_details/sleep") }
-                    )
-                }
-
-                if (showHistoricalData) {
+                val dates = filteredViolations.map { it.date }.distinct()
+                dates.forEach { date ->
+                    if (date == "2023-10-20" && !showHistoricalData) return@forEach
+                    
                     item {
-                        Spacer(modifier = Modifier.height(24.dp))
                         Text(
-                            text = "System Date: 2023-10-20",
+                            text = "System Date: $date",
                             style = MaterialTheme.typography.bodySmall.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             ),
-                            modifier = Modifier.padding(bottom = 16.dp)
+                            modifier = Modifier.padding(vertical = 16.dp)
                         )
                     }
-                    item {
-                        ViolationItem(
-                            title = "LOG_NUTRITION_MISS",
-                            time = "13:00:00",
-                            description = "Scheduled caloric intake missed.",
-                            status = "RESOLVED",
-                            isActive = false,
-                            onClick = { onNavigate("violation_details/nutrition") }
-                        )
+
+                    filteredViolations.filter { it.date == date }.forEach { violation ->
+                        item {
+                            ViolationItem(
+                                title = violation.title,
+                                time = violation.time,
+                                description = violation.description,
+                                status = violation.status,
+                                isActive = violation.isActive,
+                                onClick = { onNavigate("violation_details/${violation.id}") }
+                            )
+                        }
                     }
-                    item {
-                        Spacer(modifier = Modifier.height(32.dp))
-                    }
-                } else {
+                }
+
+                if (!showHistoricalData) {
                     item {
                         Spacer(modifier = Modifier.height(24.dp))
                         TextButton(

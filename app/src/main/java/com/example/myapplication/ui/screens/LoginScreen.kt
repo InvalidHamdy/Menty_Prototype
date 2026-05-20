@@ -109,7 +109,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToSignUp: () -> Unit) {
                     )
                     Text("remember me", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
                 }
-                TextButton(onClick = { /* TODO */ }, modifier = Modifier.align(Alignment.CenterEnd)) {
+                TextButton(onClick = { /* Simulated recovery */ }, modifier = Modifier.align(Alignment.CenterEnd)) {
                     Text("Forgot Password", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.primary))
                 }
             }
@@ -124,7 +124,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit, onNavigateToSignUp: () -> Unit) {
             }
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = { /* TODO */ },
+                onClick = onLoginSuccess,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White, contentColor = MaterialTheme.colorScheme.onSurface)

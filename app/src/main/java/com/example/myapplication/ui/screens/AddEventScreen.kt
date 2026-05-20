@@ -1,16 +1,7 @@
 package com.example.myapplication.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -19,51 +10,39 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.myapplication.data.Event
+import com.example.myapplication.data.Importance
 import com.example.myapplication.ui.components.BottomNav
-
-import com.example.myapplication.data.Habit
-import com.example.myapplication.data.HabitType
 import com.example.myapplication.viewmodel.MentorViewModel
 import java.util.UUID
 
 @Composable
-fun AddBadHabitScreen(viewModel: MentorViewModel, onNavigate: (String) -> Unit, onBack: () -> Unit) {
-    var habitIdentity by remember { mutableStateOf("") }
-    var escalationProtocol by remember { mutableStateOf("") }
-    var interventionTrigger by remember { mutableStateOf(false) }
+fun AddEventScreen(viewModel: MentorViewModel, onNavigate: (String) -> Unit, onBack: () -> Unit) {
+    var title by remember { mutableStateOf("") }
     var startHour by remember { mutableStateOf("9") }
     var startMinute by remember { mutableStateOf("00") }
-    var startPeriod by remember { mutableStateOf("PM") }
+    var startPeriod by remember { mutableStateOf("AM") }
 
-    var endHour by remember { mutableStateOf("2") }
+    var endHour by remember { mutableStateOf("10") }
     var endMinute by remember { mutableStateOf("00") }
     var endPeriod by remember { mutableStateOf("AM") }
+    var selectedImportance by remember { mutableStateOf(Importance.ROUTINE) }
+    val formattedStart =
+        "${startHour.toIntOrNull() ?: 0}:$startMinute $startPeriod"
+
+    val formattedEnd =
+        "${endHour.toIntOrNull() ?: 0}:$endMinute $endPeriod"
 
     Scaffold(
-        bottomBar = { BottomNav(currentRoute = "breaker", onNavigate = onNavigate) },
+        bottomBar = { BottomNav(currentRoute = "schedule", onNavigate = onNavigate) },
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
@@ -94,27 +73,29 @@ fun AddBadHabitScreen(viewModel: MentorViewModel, onNavigate: (String) -> Unit, 
             }
             Spacer(modifier = Modifier.height(32.dp))
 
-            Text("Add bad habit", style = MaterialTheme.typography.displayLarge.copy(color = MaterialTheme.colorScheme.onBackground))
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("Define the negative behavior and set systemic enforcement parameters.", style = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
+            Text("Add Protocol Event", style = MaterialTheme.typography.displayLarge.copy(color = MaterialTheme.colorScheme.onBackground))
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Habit Identity *", style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
-            Spacer(modifier = Modifier.height(8.dp))
             OutlinedTextField(
-                value = habitIdentity,
-                onValueChange = { habitIdentity = it },
-                placeholder = { Text("e.g., Doomscrolling, Late Night Snacking") },
+                value = title,
+                onValueChange = { title = it },
+                label = { Text("Event Title") },
+                placeholder = { Text("e.g., System Maintenance") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = OutlinedTextFieldDefaults.colors(unfocusedContainerColor = Color.White, focusedContainerColor = Color.White)
             )
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Risky Time Window", style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
-            Spacer(modifier = Modifier.height(4.dp))
-            Text("Define the highest probability period for this behavior.", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
+            Text(
+                "Time Window",
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+
             Spacer(modifier = Modifier.height(8.dp))
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -227,56 +208,37 @@ fun AddBadHabitScreen(viewModel: MentorViewModel, onNavigate: (String) -> Unit, 
             }
             Spacer(modifier = Modifier.height(24.dp))
 
-            Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White).padding(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text("Intervention Trigger", style = MaterialTheme.typography.titleMedium.copy(color = MaterialTheme.colorScheme.onSurface))
-                        Text("Enable system-level disruption during risky window.", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
+            Text("Classification", style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Importance.values().forEach { importance ->
+                    Button(
+                        onClick = { selectedImportance = importance },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(20.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (selectedImportance == importance) MaterialTheme.colorScheme.primary else Color.White,
+                            contentColor = if (selectedImportance == importance) Color.White else MaterialTheme.colorScheme.onSurface
+                        )
+                    ) {
+                        Text(importance.name, style = MaterialTheme.typography.labelSmall)
                     }
-                    Switch(checked = interventionTrigger, onCheckedChange = { interventionTrigger = it }, colors = SwitchDefaults.colors(checkedTrackColor = MaterialTheme.colorScheme.primary))
                 }
             }
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Text("Escalation Protocol", style = MaterialTheme.typography.labelMedium.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
-            Spacer(modifier = Modifier.height(4.dp))
-            Text("Action taken if behavior is logged.", style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant))
-            Spacer(modifier = Modifier.height(8.dp))
-            OutlinedTextField(
-                value = escalationProtocol,
-                onValueChange = { escalationProtocol = it },
-                placeholder = { Text("e.g., Lock down entertainment apps for 2 hours. Notify accountability partner.") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(140.dp),
-                shape = RoundedCornerShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(unfocusedContainerColor = Color.White, focusedContainerColor = Color.White)
-            )
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(48.dp))
 
             Button(
                 onClick = {
-                    if (habitIdentity.isNotBlank()) {
-                        val formattedStart =
-                            "${startHour.toIntOrNull() ?: 0}:$startMinute $startPeriod"
-
-                        val formattedEnd =
-                            "${endHour.toIntOrNull() ?: 0}:$endMinute $endPeriod"
-
-                        viewModel.addHabit(
-                            Habit(
+                    if (title.isNotBlank()) {
+                        viewModel.addEvent(
+                            Event(
                                 id = UUID.randomUUID().toString(),
-                                name = habitIdentity,
-                                category = "Risk Window: $formattedStart - $formattedEnd",
-                                type = HabitType.BAD,
-                                goal = escalationProtocol.ifBlank {
-                                    "Behavior Control"
-                                },
-                                progress =
-                                    if (interventionTrigger)
-                                        "Intervention Enabled"
-                                    else
-                                        "Monitoring Only"
+                                time = formattedStart,
+                                startTime = formattedStart,
+                                endTime = formattedEnd,
+                                title = title,
+                                type = selectedImportance.name,
+                                importance = selectedImportance
                             )
                         )
                         onBack()
@@ -288,7 +250,7 @@ fun AddBadHabitScreen(viewModel: MentorViewModel, onNavigate: (String) -> Unit, 
             ) {
                 Icon(Icons.Default.Save, contentDescription = null, tint = Color.White)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Save Habit", style = MaterialTheme.typography.titleMedium.copy(color = Color.White))
+                Text("Save Event", style = MaterialTheme.typography.titleMedium.copy(color = Color.White))
             }
             Spacer(modifier = Modifier.height(100.dp))
         }

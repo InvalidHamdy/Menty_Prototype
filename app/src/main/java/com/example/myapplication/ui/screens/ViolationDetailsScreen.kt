@@ -21,11 +21,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import com.example.myapplication.viewmodel.MentorViewModel
+
 @Composable
 fun ViolationDetailsScreen(
     violationId: String,
+    viewModel: MentorViewModel,
     onBack: () -> Unit
 ) {
+    val violation = viewModel.getViolationById(violationId)
+
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
@@ -72,14 +77,14 @@ fun ViolationDetailsScreen(
                     modifier = Modifier
                         .size(10.dp)
                         .clip(RoundedCornerShape(5.dp))
-                        .background(MaterialTheme.colorScheme.error)
+                        .background(if (violation?.isActive == true) MaterialTheme.colorScheme.error else Color.Gray)
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "SEVERITY: CRITICAL",
+                    text = "STATUS: ${violation?.status ?: "UNKNOWN"}",
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.error
+                        color = if (violation?.isActive == true) MaterialTheme.colorScheme.error else Color.Gray
                     )
                 )
             }
@@ -95,7 +100,7 @@ fun ViolationDetailsScreen(
             ) {
                 Column {
                     Text(
-                        text = "Incident Log",
+                        text = violation?.title ?: "Incident Log",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -103,7 +108,7 @@ fun ViolationDetailsScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = "User attempted an unauthorized application termination sequence during an active, mandated focus block. System integrity enforcement protocols were engaged immediately to prevent bypass.",
+                        text = violation?.description ?: "No details available.",
                         style = MaterialTheme.typography.bodyMedium.copy(
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -122,20 +127,13 @@ fun ViolationDetailsScreen(
             ) {
                 Column {
                     Text(
-                        text = "Block Context",
+                        text = "Timestamp",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     )
                     Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "Deep Work Protocol ALPHA",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Schedule,
@@ -145,7 +143,7 @@ fun ViolationDetailsScreen(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "14:32:05 UTC | 2023-10-27",
+                            text = "${violation?.time} | ${violation?.date}",
                             style = MaterialTheme.typography.bodySmall.copy(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -165,7 +163,7 @@ fun ViolationDetailsScreen(
             ) {
                 Column {
                     Text(
-                        text = "Violation Type",
+                        text = "Violation Code",
                         style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -173,152 +171,12 @@ fun ViolationDetailsScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "EVASION",
+                        text = violationId.uppercase(),
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.error,
                             fontSize = 24.sp
                         )
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Strictness Protocol card (full width)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .padding(24.dp)
-            ) {
-                Column {
-                    Text(
-                        text = "Strictness Protocol",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.tertiary,
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Maximum Enforcement",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // 24H Frequency card (full width)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .padding(24.dp)
-            ) {
-                Column {
-                    Text(
-                        text = "24H Frequency",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "03",
-                        style = MaterialTheme.typography.displayLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 48.sp
-                        )
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // System Response Executed header
-            Text(
-                text = "System Response Executed",
-                style = MaterialTheme.typography.titleMedium.copy(
-                    color = MaterialTheme.colorScheme.onBackground,
-                    fontWeight = FontWeight.SemiBold
-                )
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-
-            // Consequence Deployed card
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.08f))
-                    .padding(24.dp)
-            ) {
-                Column {
-                    Text(
-                        text = "Consequence Deployed",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "Immediate device lockdown initiated. All non-essential processes terminated. 15-minute mandatory reset timer activated and enforced at OS level.",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Escalation Status card
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color.White)
-                    .padding(24.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Escalation Status",
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Supervisor notification dispatched.",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.Default.Campaign,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(30.dp)
                     )
                 }
             }
@@ -341,7 +199,7 @@ fun ViolationDetailsScreen(
                 )
                 Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Acknowledged – no further action",
+                    text = "Acknowledged",
                     style = MaterialTheme.typography.labelSmall.copy(
                         fontWeight = FontWeight.Bold,
                         color = Color.White

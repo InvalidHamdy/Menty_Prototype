@@ -34,8 +34,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.myapplication.ui.components.BottomNav
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.example.myapplication.data.HabitType
+import com.example.myapplication.viewmodel.MentorViewModel
+
 @Composable
-fun HabitBuilderScreen(onNavigate: (String) -> Unit) {
+fun HabitBuilderScreen(viewModel: MentorViewModel, onNavigate: (String) -> Unit) {
+    val allHabits by viewModel.habits.collectAsState()
+    val habits = allHabits.filter { it.type == HabitType.GOOD }
+
     Scaffold(
         bottomBar = { BottomNav(currentRoute = "builder", onNavigate = onNavigate) },
         floatingActionButton = {
@@ -120,7 +128,7 @@ fun HabitBuilderScreen(onNavigate: (String) -> Unit) {
 
             // Stats Row
             Row(modifier = Modifier.fillMaxWidth()) {
-                StatBox(modifier = Modifier.weight(1f), label = "Active", value = "04")
+                StatBox(modifier = Modifier.weight(1f), label = "Active", value = String.format("%02d", habits.size))
                 Spacer(modifier = Modifier.width(16.dp))
                 StatBox(modifier = Modifier.weight(1f), label = "Done", value = "02")
                 Spacer(modifier = Modifier.width(16.dp))
@@ -131,11 +139,15 @@ fun HabitBuilderScreen(onNavigate: (String) -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
 
             // Habit Items
-            GoodHabitItem("Morning Hydration Protocol", "Health", "12")
-            Spacer(modifier = Modifier.height(16.dp))
-            GoodHabitItem("Deep Work Block", "Focus", "04")
-            Spacer(modifier = Modifier.height(16.dp))
-            GoodHabitItem("Daily Reflection Log", "Mental", "00")
+            habits.forEach { habit ->
+                GoodHabitItem(
+                    title = habit.name,
+                    category = habit.category,
+                    streak = "00", // Hardcoded for now as it's not in model
+                    onRemove = { viewModel.removeHabit(habit.id) }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
             
             Spacer(modifier = Modifier.height(100.dp))
         }
@@ -151,7 +163,7 @@ private fun StatBox(modifier: Modifier = Modifier, label: String, value: String)
 }
 
 @Composable
-private fun GoodHabitItem(title: String, category: String, streak: String) {
+private fun GoodHabitItem(title: String, category: String, streak: String, onRemove: () -> Unit) {
     Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White).padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Column(modifier = Modifier.weight(1f)) {
@@ -168,7 +180,7 @@ private fun GoodHabitItem(title: String, category: String, streak: String) {
                 }
             }
             Spacer(modifier = Modifier.width(16.dp))
-            IconButton(onClick = { /* TODO */ }) {
+            IconButton(onClick = onRemove) {
                 Icon(Icons.Default.Close, contentDescription = "Close", tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }

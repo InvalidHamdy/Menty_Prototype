@@ -151,7 +151,7 @@ fun ScheduleScreen(onNavigate: (String) -> Unit) {
                 title = "MAINTENANCE", subtitle = "Fueling & Prep",
                 icon = Icons.Default.Coffee, statusIcon = Icons.Default.CheckCircle, statusColor = MaterialTheme.colorScheme.primary
             )
-            
+
             // Active Block
             ActiveScheduleBlock()
 

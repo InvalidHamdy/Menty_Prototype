@@ -37,8 +37,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.components.BottomNav
 
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import com.example.myapplication.data.HabitType
+import com.example.myapplication.viewmodel.MentorViewModel
+
 @Composable
-fun HabitBreakerScreen(onNavigate: (String) -> Unit) {
+fun HabitBreakerScreen(viewModel: MentorViewModel, onNavigate: (String) -> Unit) {
+    val allHabits by viewModel.habits.collectAsState()
+    val habits = allHabits.filter { it.type == HabitType.BAD }
+
     Scaffold(
         bottomBar = { BottomNav(currentRoute = "breaker", onNavigate = onNavigate) },
         floatingActionButton = {
@@ -114,7 +122,7 @@ fun HabitBreakerScreen(onNavigate: (String) -> Unit) {
 
             // Stats
             Row(modifier = Modifier.fillMaxWidth()) {
-                StatBox(modifier = Modifier.weight(1f), label = "Active", value = "04")
+                StatBox(modifier = Modifier.weight(1f), label = "Active", value = String.format("%02d", habits.size))
                 Spacer(modifier = Modifier.width(16.dp))
                 StatBox(modifier = Modifier.weight(1f), label = "Violations", value = "12")
                 Spacer(modifier = Modifier.width(16.dp))
@@ -122,11 +130,17 @@ fun HabitBreakerScreen(onNavigate: (String) -> Unit) {
             }
             Spacer(modifier = Modifier.height(32.dp))
 
-            BadHabitItem("Doom Scrolling", "Digital Overload", "08", "Violation", MaterialTheme.colorScheme.error)
-            Spacer(modifier = Modifier.height(16.dp))
-            BadHabitItem("Late Night Snacks", "Dietary Disruption", "03", "Warning", MaterialTheme.colorScheme.tertiary)
-            Spacer(modifier = Modifier.height(16.dp))
-            BadHabitItem("Nail Biting", "Physical Trigger", "01", "Controlled", MaterialTheme.colorScheme.primary)
+            habits.forEach { habit ->
+                BadHabitItem(
+                    title = habit.name,
+                    category = habit.category,
+                    violations = "00", // Not in model
+                    status = "Monitoring", 
+                    statusColor = MaterialTheme.colorScheme.primary,
+                    onDelete = { viewModel.removeHabit(habit.id) }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
 
             Spacer(modifier = Modifier.height(100.dp))
         }
@@ -142,7 +156,7 @@ private fun StatBox(modifier: Modifier = Modifier, label: String, value: String)
 }
 
 @Composable
-private fun BadHabitItem(title: String, category: String, violations: String, status: String, statusColor: Color) {
+private fun BadHabitItem(title: String, category: String, violations: String, status: String, statusColor: Color, onDelete: () -> Unit) {
     Box(modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Color.White).padding(16.dp)) {
         Column {
             Row(verticalAlignment = Alignment.Top) {
@@ -163,7 +177,7 @@ private fun BadHabitItem(title: String, category: String, violations: String, st
                         IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
                             Icon(Icons.Default.Edit, contentDescription = "Edit", tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(16.dp))
                         }
-                        IconButton(onClick = {}, modifier = Modifier.size(32.dp)) {
+                        IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
                             Icon(Icons.Default.Delete, contentDescription = "Delete", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
                         }
                     }
